@@ -46,6 +46,7 @@
                         <MenuFlyoutItem Text="Исходный код программы" />
                     </MenuBarItem>
                     <MenuBarItem Title="Пуск">
+                        <MenuFlyoutItem Text="Анализ дестичной константы" Name="DecimalAnalysis" Click="DecimalAnalysis_Click" />
                     </MenuBarItem>
                     <MenuBarItem Title="Справка">
                         <MenuFlyoutItem Text="Вызов справки" />

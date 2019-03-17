@@ -17,6 +17,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using System.Text;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x419
 
@@ -121,6 +122,24 @@ namespace ComplersCourseWork
             Bindings.Update();
         }
 
+        private void DecimalAnalysisMethod()
+        {
+            var input = ViewModel.InputData;
+            var result = StateMachineDecimalParser.DecimalParserHelper.ParseDecimalConst(input, out var warnings);
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"Parse result: {result}\n");
+
+            foreach (var item in warnings)
+            {
+                sb.AppendLine(item.ToString());
+            }
+
+            ViewModel.OutputData = sb.ToString();
+
+            Bindings.Update();
+        }
+
         private async void Open_Click(object sender, RoutedEventArgs e)
         {
             await OpenFileAsync();
@@ -156,5 +175,8 @@ namespace ComplersCourseWork
 
         private void SelectAll_Click(object sender, RoutedEventArgs e)
             => CodeTextBox.SelectAll();
+
+        private void DecimalAnalysis_Click(object sender, RoutedEventArgs e)
+            => DecimalAnalysisMethod();
     }
 }

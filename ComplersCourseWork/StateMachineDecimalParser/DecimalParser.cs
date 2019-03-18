@@ -82,8 +82,8 @@ namespace TeorForm_lab1.RecursiveDescent
                         textData.AdvanceChar();
                         return;
                     case '\0':
-                        MakeWarning(
-                            "Unknown character! There can only be digit or sign.",
+                        MakeWarningMinimal(
+                            "Value cannot be empty",
                             textData.PeekChar(),
                             textData.Position,
                             WarningType.Error);
@@ -127,8 +127,8 @@ namespace TeorForm_lab1.RecursiveDescent
                     case ' ':
                     case '\t':
                     case '\n':
-                        MakeWarning(
-                            "Unknown character! There can only be digit from 1 to 9",
+                        MakeWarningMinimal(
+                            "Value cannot be empty",
                             textData.PeekChar(),
                             textData.Position,
                             WarningType.Error);
@@ -176,7 +176,7 @@ namespace TeorForm_lab1.RecursiveDescent
                             textData.Position,
                             WarningType.Warning);
                         textData.AdvanceChar();
-                        break;
+                        return;
                     case '\0':
                     case ' ':
                     case '\t':
@@ -264,7 +264,7 @@ namespace TeorForm_lab1.RecursiveDescent
                             textData.Position,
                             WarningType.Warning);
                         textData.AdvanceChar();
-                        break;
+                        return;
                     case '\0':
                     case ' ':
                     case '\t':
@@ -287,6 +287,11 @@ namespace TeorForm_lab1.RecursiveDescent
         {
             warnings.Add(new Warning(text, character, position, warningType));
         }
+
+        void MakeWarningMinimal(string text, char character, int position, WarningType warningType)
+        {
+            warnings.Add(new WarningMinimal(text, character, position, warningType));
+        }
     }
 
     class Warning
@@ -306,7 +311,20 @@ namespace TeorForm_lab1.RecursiveDescent
 
         public override string ToString()
         {
-            return $"{WarningType}: Chartacter '{Character}' at position {Position};\n Info: {Text};";
+            return $"{WarningType}: Chartacter '{Character}' at position {Position};\nInfo: {Text};";
+        }
+    }
+
+    class WarningMinimal : Warning
+    {
+        public WarningMinimal(string text, char character, int position, WarningType warningType) 
+            : base(text, character, position, warningType)
+        {
+        }
+
+        public override string ToString()
+        {
+            return $"{WarningType}: Position {Position};\nInfo: {Text};";
         }
     }
 

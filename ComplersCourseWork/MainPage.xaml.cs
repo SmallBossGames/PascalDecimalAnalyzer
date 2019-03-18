@@ -39,17 +39,6 @@ namespace ComplersCourseWork
             this.InitializeComponent();
         }
 
-        public void CopyData()
-        {
-            ViewModel.OutputData = ViewModel.InputData;
-        }
-
-        private void AppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            CopyData();
-            Bindings.Update();
-        }
-
         private async void SaveAs_Click(object sender, RoutedEventArgs e)
         {
             await SaveAsFileAsync();
@@ -132,7 +121,8 @@ namespace ComplersCourseWork
 
             foreach (var item in warnings)
             {
-                sb.AppendLine(item.ToString());
+                sb.AppendLine(item.ToString())
+                    .AppendLine();
             }
 
             ViewModel.OutputData = sb.ToString();

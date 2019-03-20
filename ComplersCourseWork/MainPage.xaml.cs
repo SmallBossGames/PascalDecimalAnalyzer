@@ -114,10 +114,11 @@ namespace ComplersCourseWork
         private void DecimalAnalysisMethod()
         {
             var input = ViewModel.InputData;
-            var result = StateMachineDecimalParser.DecimalParserHelper.ParseDecimalConst(input, out var warnings);
+            var result = StateMachineDecimalParser.DecimalParserHelper
+                .ParseDecimalConst(input, out var warnings, out var resultString);
             var sb = new StringBuilder();
 
-            sb.AppendLine($"Parse result: {result}\n");
+            sb.AppendLine($"Success: {result}; Parse result string: {resultString};\n");
 
             foreach (var item in warnings)
             {

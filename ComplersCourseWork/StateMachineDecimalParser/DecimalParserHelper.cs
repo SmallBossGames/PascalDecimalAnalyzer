@@ -10,11 +10,11 @@ namespace ComplersCourseWork.StateMachineDecimalParser
 {
     static class DecimalParserHelper
     {
-        public static bool ParseDecimalConst(string data, out List<Warning> warningsCollection)
+        public static bool ParseDecimalConst(string source, out List<Warning> warningsCollection, out string result)
         {
-            var textData = new TextData(data);
+            var textData = new TextData(source);
             var parser = new DecimalParser();
-            return parser.ParseDecimalConst(textData, out warningsCollection);
+            return parser.ParseDecimalConst(textData, out warningsCollection, out result);
         }
     }
 }

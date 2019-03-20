@@ -12,12 +12,14 @@ namespace TeorForm_lab1.RecursiveDescent
         private DecimalParseMode mode;
         private List<Warning> warnings;
         private TextData textData;
+        private StringBuilder resultString;
 
-        public bool ParseDecimalConst(TextData data, out List<Warning> warningsCollection)
+        public bool ParseDecimalConst(TextData data, out List<Warning> warningsCollection, out string result)
         {
             mode = DecimalParseMode.DecimalConst;
             warnings = new List<Warning>();
             textData = data;
+            resultString = new StringBuilder();
 
             while (true)
             {
@@ -32,18 +34,30 @@ namespace TeorForm_lab1.RecursiveDescent
                     case DecimalParseMode.DecimalConstWithNull:
                         ParseUnsignedDecimalWithNull();
                         break;
-                    case DecimalParseMode.UnsignedInteger:
-                        ParseUnsignedInteger();
+                    case DecimalParseMode.UnsignedIntegerWithExponent:
+                        ParseUnsignedIntegerWithExponent();
                         break;
                     case DecimalParseMode.NullStartDecimal:
                         ParseNullStartDecimal();
                         break;
                     case DecimalParseMode.Ending:
                         warningsCollection = warnings;
+                        result = resultString.ToString();
                         return warnings.All(x => x.WarningType != WarningType.Error);
+                    case DecimalParseMode.UnsignedInteger:
+                        ParseUnsignedInteger();
+                        break;
+                    case DecimalParseMode.NullStartInteger:
+                        ParseNullStartInteger();
+                        break;
+                    case DecimalParseMode.SignedInteger:
+                        ParseSignedInteger();
+                        break;
+                    case DecimalParseMode.UnsignedIntegerWithNull:
+                        ParseUnsignedIntegerWithNull();
+                        break;
                     default:
-                        warningsCollection = warnings;
-                        return false;
+                        throw new NotImplementedException();
                 }
             }
         }
@@ -70,15 +84,18 @@ namespace TeorForm_lab1.RecursiveDescent
                     case '8':
                     case '9':
                         mode = DecimalParseMode.DecimalConstWithNull;
+                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '0':
                         mode = DecimalParseMode.NullStartDecimal;
+                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '+':
                     case '-':
                         mode = DecimalParseMode.UnsignedDecimalConst;
+                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '\0':
@@ -117,10 +134,12 @@ namespace TeorForm_lab1.RecursiveDescent
                     case '8':
                     case '9':
                         mode = DecimalParseMode.DecimalConstWithNull;
+                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '0':
                         mode = DecimalParseMode.NullStartDecimal;
+                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '\0':
@@ -162,19 +181,28 @@ namespace TeorForm_lab1.RecursiveDescent
                     case '7':
                     case '8':
                     case '9':
+                        SaveCharacter();
                         textData.AdvanceChar();
                         break;
                     case '.':
-                        mode = DecimalParseMode.UnsignedInteger;
+                        mode = DecimalParseMode.UnsignedIntegerWithExponent;
+                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case ',':
-                        mode = DecimalParseMode.UnsignedInteger;
+                        mode = DecimalParseMode.UnsignedIntegerWithExponent;
+                        SaveCharacter('.');
                         MakeWarning(
                             "There can only be digit from 0 to 9 or '.' character",
                             textData.PeekChar(),
                             textData.Position,
                             WarningType.Warning);
+                        textData.AdvanceChar();
+                        return;
+                    case 'E':
+                    case 'e':
+                        mode = DecimalParseMode.SignedInteger;
+                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '\0':
@@ -195,7 +223,7 @@ namespace TeorForm_lab1.RecursiveDescent
             }
         }
 
-        void ParseUnsignedInteger()
+        void ParseUnsignedIntegerWithExponent()
         {
             while (true)
             {
@@ -211,9 +239,19 @@ namespace TeorForm_lab1.RecursiveDescent
                     case '7':
                     case '8':
                     case '9':
+                        SaveCharacter();
                         textData.AdvanceChar();
                         break;
+                    case 'E':
+                    case 'e':
+                        mode = DecimalParseMode.SignedInteger;
+                        SaveCharacter();
+                        textData.AdvanceChar();
+                        return;
                     case '\0':
+                    case ' ':
+                    case '\t':
+                    case '\n':
                         mode = DecimalParseMode.Ending;
                         return;
                     default:
@@ -245,6 +283,7 @@ namespace TeorForm_lab1.RecursiveDescent
                     case '8':
                     case '9':
                         mode = DecimalParseMode.DecimalConstWithNull;
+                        SaveCharacter();
                         MakeWarning(
                             "Null at the beginning is excess",
                             textData.PeekChar(),
@@ -252,12 +291,25 @@ namespace TeorForm_lab1.RecursiveDescent
                             WarningType.Warning);
                         textData.AdvanceChar();
                         return;
+                    case 'E':
+                    case 'e':
+                        mode = DecimalParseMode.SignedInteger;
+                        SaveCharacter();
+                        MakeWarning(
+                            "Null with exponent equal null",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Warning);
+                        textData.AdvanceChar();
+                        return;
                     case '.':
-                        mode = DecimalParseMode.UnsignedInteger;
+                        mode = DecimalParseMode.UnsignedIntegerWithExponent;
+                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case ',':
-                        mode = DecimalParseMode.UnsignedInteger;
+                        mode = DecimalParseMode.UnsignedIntegerWithExponent;
+                        SaveCharacter('.');
                         MakeWarning(
                             "There can only be digit from 0 to 9 or '.' character",
                             textData.PeekChar(),
@@ -282,6 +334,193 @@ namespace TeorForm_lab1.RecursiveDescent
                 }
             }
         }
+
+
+        void ParseSignedInteger()
+        {
+            while (true)
+            {
+                switch (textData.PeekChar())
+                {
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        mode = DecimalParseMode.UnsignedIntegerWithNull;
+                        SaveCharacter();
+                        textData.AdvanceChar();
+                        return;
+                    case '0':
+                        mode = DecimalParseMode.NullStartInteger;
+                        SaveCharacter();
+                        textData.AdvanceChar();
+                        return;
+                    case '+': case '-':
+                        mode = DecimalParseMode.UnsignedInteger;
+                        SaveCharacter();
+                        textData.AdvanceChar();
+                        return;
+                    case '\0':
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                        MakeWarningMinimal(
+                            "Exponent cannot be empty",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Error);
+                        mode = DecimalParseMode.Ending;
+                        return;
+                    default:
+                        MakeWarning(
+                            "Unknown character! There can only be digit from 0 to 9 or sign",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Error);
+                        textData.AdvanceChar();
+                        break;
+                }
+            }
+        }
+
+        void ParseNullStartInteger()
+        {
+            while (true)
+            {
+                switch (textData.PeekChar())
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        mode = DecimalParseMode.UnsignedIntegerWithNull;
+                        SaveCharacter();
+                        MakeWarning(
+                            "Null at the beginning is excess",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Warning);
+                        textData.AdvanceChar();
+                        return;
+                    case '\0':
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                        mode = DecimalParseMode.Ending;
+                        return;
+                    default:
+                        MakeWarning(
+                            "Unknown character! There can only be digit from 0 to 9 or sign",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Error);
+                        textData.AdvanceChar();
+                        break;
+                }
+            }
+        }
+
+        void ParseUnsignedInteger()
+        {
+            while (true)
+            {
+                switch (textData.PeekChar())
+                {
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        mode = DecimalParseMode.UnsignedIntegerWithNull;
+                        SaveCharacter();
+                        textData.AdvanceChar();
+                        return;
+                    case '0':
+                        mode = DecimalParseMode.NullStartInteger;
+                        SaveCharacter();
+                        textData.AdvanceChar();
+                        return;
+                    case '\0':
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                        MakeWarningMinimal(
+                           "Value cannot be empty",
+                           textData.PeekChar(),
+                           textData.Position,
+                           WarningType.Error);
+                        mode = DecimalParseMode.Ending;
+                        return;
+                    default:
+                        MakeWarning(
+                            "Unknown character! There can only be digit from 0 to 9 or sign",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Error);
+                        textData.AdvanceChar();
+                        break;
+                }
+            }
+        }
+
+        void ParseUnsignedIntegerWithNull()
+        {
+            while (true)
+            {
+                switch (textData.PeekChar())
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        SaveCharacter();
+                        textData.AdvanceChar();
+                        break;
+                    case '\0':
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                        mode = DecimalParseMode.Ending;
+                        return;
+                    default:
+                        MakeWarning(
+                            "Unknown character! There can only be digit from 0 to 9",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Error);
+                        textData.AdvanceChar();
+                        break;
+                }
+            }
+        }
+
+        void SaveCharacter(char value)
+        {
+            resultString.Append(value);
+        }
+
+        void SaveCharacter() => SaveCharacter(textData.PeekChar());
 
         void MakeWarning(string text, char character, int position, WarningType warningType)
         {
@@ -334,7 +573,11 @@ namespace TeorForm_lab1.RecursiveDescent
         UnsignedDecimalConst,
         DecimalConstWithNull,
         NullStartDecimal,
+        UnsignedIntegerWithExponent,
+        UnsignedIntegerWithNull,
         UnsignedInteger,
+        NullStartInteger,
+        SignedInteger,
         Ending,
     }
 

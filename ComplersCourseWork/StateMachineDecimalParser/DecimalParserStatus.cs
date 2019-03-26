@@ -8,7 +8,7 @@ namespace ComplersCourseWork.StateMachineDecimalParser
 {
     readonly struct DecimalParserStatus
     {
-        public DecimalParserStatus(bool success, IReadOnlyList<Warning> warnings, string result) : this()
+        public DecimalParserStatus(bool success, IReadOnlyCollection<Warning> warnings, string result) : this()
         {
             Success = success;
             Warnings = warnings;
@@ -16,7 +16,7 @@ namespace ComplersCourseWork.StateMachineDecimalParser
         }
 
         public bool Success { get; }
-        public IReadOnlyList<Warning> Warnings { get; }
+        public IReadOnlyCollection<Warning> Warnings { get; }
         public string Result { get; }
     }
 }

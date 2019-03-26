@@ -10,14 +10,14 @@ namespace ComplersCourseWork.StateMachineDecimalParser
     class DecimalParser
     {
         private DecimalParseMode mode;
-        private List<Warning> warnings;
+        private LinkedList<Warning> warnings;
         private TextData textData;
         private StringBuilder resultString;
 
         public DecimalParserStatus ParseDecimalConst(TextData data)
         {
             mode = DecimalParseMode.DecimalConst;
-            warnings = new List<Warning>();
+            warnings = new LinkedList<Warning>();
             textData = data;
             resultString = new StringBuilder();
 
@@ -534,12 +534,12 @@ namespace ComplersCourseWork.StateMachineDecimalParser
 
         void MakeWarning(string text, char character, int position, WarningType warningType)
         {
-            warnings.Add(new Warning(text, character, position, warningType));
+            warnings.AddLast(new Warning(text, character, position, warningType));
         }
 
         void MakeWarningMinimal(string text, char character, int position, WarningType warningType)
         {
-            warnings.Add(new WarningMinimal(text, character, position, warningType));
+            warnings.AddLast(new WarningMinimal(text, character, position, warningType));
         }
     }
 
@@ -555,11 +555,5 @@ namespace ComplersCourseWork.StateMachineDecimalParser
         NullStartInteger,
         SignedInteger,
         Ending,
-    }
-
-    enum WarningType:byte
-    {
-        Error,
-        Warning,
     }
 }

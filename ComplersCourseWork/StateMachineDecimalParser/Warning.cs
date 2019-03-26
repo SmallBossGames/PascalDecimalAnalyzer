@@ -20,4 +20,10 @@
             return $"{WarningType}: Chartacter '{Character}' at position {Position};\nInfo: {Text};";
         }
     }
+
+    enum WarningType : byte
+    {
+        Error,
+        Warning,
+    }
 }

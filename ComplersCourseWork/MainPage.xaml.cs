@@ -119,7 +119,7 @@ namespace ComplersCourseWork
                 .ParseDecimalConst(input);
             var sb = new StringBuilder();
 
-            sb.AppendLine($"Success: {status.Result}; Parse result string: {status.Result};\n");
+            sb.AppendLine($"Success: {status.Success}; Parse result string: {status.Result};\n");
 
             foreach (var item in status.Warnings)
             {

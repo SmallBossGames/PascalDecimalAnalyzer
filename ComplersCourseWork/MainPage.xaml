@@ -49,7 +49,7 @@
                         <MenuFlyoutItem Text="Анализ дестичной константы" Name="DecimalAnalysis" Click="DecimalAnalysis_Click" />
                     </MenuBarItem>
                     <MenuBarItem Title="Справка">
-                        <MenuFlyoutItem Text="Вызов справки" />
+                        <MenuFlyoutItem Text="Вызов справки" Icon="NewWindow" Name="Help" Click="Help_Click"/>
                         <MenuFlyoutItem Text="О программе" />
                     </MenuBarItem>
                 </MenuBar>
@@ -74,34 +74,6 @@
                  TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"
                  SelectionHighlightColor="Black" Grid.Row="1" VerticalAlignment="Stretch"
                  IsReadOnly="True" Text="{x:Bind ViewModel.OutputData, Mode=OneTime}"/>
-
-        <!--<NavigationView Margin="0,0,0,0" Grid.RowSpan="2">
-            <NavigationView.Content>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="29*"/>
-                        <RowDefinition Height="19*"/>
-                    </Grid.RowDefinitions>
-                    
-                    <TextBox Margin="10,45,10,10" PlaceholderText="Тут код" 
-                             TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             SelectionHighlightColor="Black" HorizontalAlignment="Stretch"/>
-                    <TextBox Margin="10,10,10,10" PlaceholderText="Тут выводы" 
-                             TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             SelectionHighlightColor="Black" Grid.Row="1" VerticalAlignment="Stretch"/>
-                </Grid>
-
-
-            </NavigationView.Content>
-            <NavigationView.MenuItems>
-                <NavigationViewItem Icon="Folder" Content="Файл" x:Name="File" />
-                <NavigationViewItem Icon="Edit" Content="Правка" x:Name="Edit" />
-                <NavigationViewItem Icon="Accept" Content="Текст" x:Name="Text" />
-                <NavigationViewItem Icon="Play"  Content="Пуск" x:Name="Start" />
-                <NavigationViewItem Icon="Help" Content="Справка" x:Name="Help" />
-            </NavigationView.MenuItems>
-        </NavigationView>-->
-
 
     </Grid>
 </Page>

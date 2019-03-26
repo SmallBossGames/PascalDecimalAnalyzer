@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeorForm_lab1.Lexer;
 
-namespace TeorForm_lab1.RecursiveDescent
+namespace ComplersCourseWork.StateMachineDecimalParser
 {
     class DecimalParser
     {
@@ -14,7 +14,7 @@ namespace TeorForm_lab1.RecursiveDescent
         private TextData textData;
         private StringBuilder resultString;
 
-        public bool ParseDecimalConst(TextData data, out List<Warning> warningsCollection, out string result)
+        public DecimalParserStatus ParseDecimalConst(TextData data)
         {
             mode = DecimalParseMode.DecimalConst;
             warnings = new List<Warning>();
@@ -41,9 +41,10 @@ namespace TeorForm_lab1.RecursiveDescent
                         ParseNullStartDecimal();
                         break;
                     case DecimalParseMode.Ending:
-                        warningsCollection = warnings;
-                        result = resultString.ToString();
-                        return warnings.All(x => x.WarningType != WarningType.Error);
+                        return new DecimalParserStatus(
+                            warnings.All(x => x.WarningType != WarningType.Error),
+                            warnings,
+                            resultString.ToString());
                     case DecimalParseMode.UnsignedInteger:
                         ParseUnsignedInteger();
                         break;
@@ -89,7 +90,6 @@ namespace TeorForm_lab1.RecursiveDescent
                         return;
                     case '0':
                         mode = DecimalParseMode.NullStartDecimal;
-                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '+':
@@ -139,7 +139,6 @@ namespace TeorForm_lab1.RecursiveDescent
                         return;
                     case '0':
                         mode = DecimalParseMode.NullStartDecimal;
-                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '\0':
@@ -273,6 +272,13 @@ namespace TeorForm_lab1.RecursiveDescent
                 switch (textData.PeekChar())
                 {
                     case '0':
+                        MakeWarning(
+                            "Null at the beginning is excess",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Warning);
+                        textData.AdvanceChar();
+                        break;
                     case '1':
                     case '2':
                     case '3':
@@ -284,11 +290,6 @@ namespace TeorForm_lab1.RecursiveDescent
                     case '9':
                         mode = DecimalParseMode.DecimalConstWithNull;
                         SaveCharacter();
-                        MakeWarning(
-                            "Null at the beginning is excess",
-                            textData.PeekChar(),
-                            textData.Position,
-                            WarningType.Warning);
                         textData.AdvanceChar();
                         return;
                     case 'E':
@@ -304,11 +305,13 @@ namespace TeorForm_lab1.RecursiveDescent
                         return;
                     case '.':
                         mode = DecimalParseMode.UnsignedIntegerWithExponent;
+                        SaveCharacter('0');
                         SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case ',':
                         mode = DecimalParseMode.UnsignedIntegerWithExponent;
+                        SaveCharacter('0');
                         SaveCharacter('.');
                         MakeWarning(
                             "There can only be digit from 0 to 9 or '.' character",
@@ -321,6 +324,7 @@ namespace TeorForm_lab1.RecursiveDescent
                     case ' ':
                     case '\t':
                     case '\n':
+                        SaveCharacter('0');
                         mode = DecimalParseMode.Ending;
                         return;
                     default:
@@ -357,7 +361,6 @@ namespace TeorForm_lab1.RecursiveDescent
                         return;
                     case '0':
                         mode = DecimalParseMode.NullStartInteger;
-                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '+': case '-':
@@ -395,6 +398,13 @@ namespace TeorForm_lab1.RecursiveDescent
                 switch (textData.PeekChar())
                 {
                     case '0':
+                        MakeWarning(
+                            "Null at the beginning is excess",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Warning);
+                        textData.AdvanceChar();
+                        break;
                     case '1':
                     case '2':
                     case '3':
@@ -417,6 +427,7 @@ namespace TeorForm_lab1.RecursiveDescent
                     case ' ':
                     case '\t':
                     case '\n':
+                        SaveCharacter('0');
                         mode = DecimalParseMode.Ending;
                         return;
                     default:
@@ -452,7 +463,6 @@ namespace TeorForm_lab1.RecursiveDescent
                         return;
                     case '0':
                         mode = DecimalParseMode.NullStartInteger;
-                        SaveCharacter();
                         textData.AdvanceChar();
                         return;
                     case '\0':
@@ -530,40 +540,6 @@ namespace TeorForm_lab1.RecursiveDescent
         void MakeWarningMinimal(string text, char character, int position, WarningType warningType)
         {
             warnings.Add(new WarningMinimal(text, character, position, warningType));
-        }
-    }
-
-    class Warning
-    {
-        public Warning(string text, char character, int position, WarningType warningType)
-        {
-            Text = text;
-            Position = position;
-            WarningType = warningType;
-            Character = character;
-        }
-
-        public string Text { get; }
-        public int Position { get; }
-        public WarningType WarningType { get; }
-        public char Character { get; }
-
-        public override string ToString()
-        {
-            return $"{WarningType}: Chartacter '{Character}' at position {Position};\nInfo: {Text};";
-        }
-    }
-
-    class WarningMinimal : Warning
-    {
-        public WarningMinimal(string text, char character, int position, WarningType warningType) 
-            : base(text, character, position, warningType)
-        {
-        }
-
-        public override string ToString()
-        {
-            return $"{WarningType}: Position {Position};\nInfo: {Text};";
         }
     }
 

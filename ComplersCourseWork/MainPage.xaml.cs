@@ -17,6 +17,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.System;
 using System.Text;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x419
@@ -114,13 +115,13 @@ namespace ComplersCourseWork
         private void DecimalAnalysisMethod()
         {
             var input = ViewModel.InputData;
-            var result = StateMachineDecimalParser.DecimalParserHelper
-                .ParseDecimalConst(input, out var warnings, out var resultString);
+            var status = StateMachineDecimalParser.DecimalParserHelper
+                .ParseDecimalConst(input);
             var sb = new StringBuilder();
 
-            sb.AppendLine($"Success: {result}; Parse result string: {resultString};\n");
+            sb.AppendLine($"Success: {status.Result}; Parse result string: {status.Result};\n");
 
-            foreach (var item in warnings)
+            foreach (var item in status.Warnings)
             {
                 sb.AppendLine(item.ToString())
                     .AppendLine();
@@ -169,5 +170,21 @@ namespace ComplersCourseWork
 
         private void DecimalAnalysis_Click(object sender, RoutedEventArgs e)
             => DecimalAnalysisMethod();
+
+        private async void Help_Click(object sender, RoutedEventArgs e)
+        {
+            await OpenHelpAsync();
+        }
+
+        private async Task OpenHelpAsync()
+        {
+            var helpFiles = await Windows.ApplicationModel.Package.Current
+                .InstalledLocation
+                .GetFolderAsync("HelpFiles");
+
+            var file = await helpFiles.GetFileAsync("Help.pdf");
+
+            await Launcher.LaunchFileAsync(file);
+        }
     }
 }

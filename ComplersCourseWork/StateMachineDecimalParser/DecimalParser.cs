@@ -290,6 +290,11 @@ namespace ComplersCourseWork.StateMachineDecimalParser
                     case '9':
                         mode = DecimalParseMode.DecimalConstWithNull;
                         SaveCharacter();
+                        MakeWarning(
+                            "Null at the beginning is excess",
+                            textData.PeekChar(),
+                            textData.Position,
+                            WarningType.Warning);
                         textData.AdvanceChar();
                         return;
                     case 'E':
